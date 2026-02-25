@@ -4,15 +4,16 @@ import {
     collection, 
     onSnapshot,
     deleteDoc,
-    doc,
-    query,
-    orderBy
+    doc
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDsHmolc0W2ak6CjcpVr_inPT5xIq-Ml4A",
   authDomain: "agenda-unhas-289db.firebaseapp.com",
   projectId: "agenda-unhas-289db",
+  storageBucket: "agenda-unhas-289db.firebasestorage.app",
+  messagingSenderId: "362817015721",
+  appId: "1:362817015721:web:b2c6ed03cf4994b57afeb8"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -22,6 +23,7 @@ const agendaRef = collection(db, "agendamentos");
 const lista = document.getElementById("listaAgendamentos");
 
 function renderizar(dados) {
+
     lista.innerHTML = "";
 
     dados.forEach((registro) => {
@@ -52,8 +54,12 @@ function renderizar(dados) {
     });
 }
 
-const q = query(agendaRef, orderBy("criado"));
+// 🔥 Tempo real SEM orderBy (mais estável)
+onSnapshot(agendaRef, (snapshot) => {
 
-onSnapshot(q, (snapshot) => {
-    renderizar(snapshot.docs);
+    const dadosOrdenados = snapshot.docs.sort(
+        (a, b) => a.data().horario.localeCompare(b.data().horario)
+    );
+
+    renderizar(dadosOrdenados);
 });
